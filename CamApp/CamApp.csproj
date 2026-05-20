@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net10.0-android</TargetFrameworks>
@@ -15,7 +15,7 @@
 		<ApplicationTitle>CamApp</ApplicationTitle>
 		<ApplicationId>com.companyname.camapp</ApplicationId>
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
+		<ApplicationVersion>6</ApplicationVersion>
 
 		<WindowsPackageType>None</WindowsPackageType>
 
@@ -29,6 +29,23 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AndroidResource Include="Platforms\Android\Resources\mipmap-mdpi\appicon.png" />
+		<AndroidResource Include="Platforms\Android\Resources\mipmap-mdpi\appicon_round.png" />
+
+		<AndroidResource Include="Platforms\Android\Resources\mipmap-hdpi\appicon.png" />
+		<AndroidResource Include="Platforms\Android\Resources\mipmap-hdpi\appicon_round.png" />
+
+		<AndroidResource Include="Platforms\Android\Resources\mipmap-xhdpi\appicon.png" />
+		<AndroidResource Include="Platforms\Android\Resources\mipmap-xhdpi\appicon_round.png" />
+
+		<AndroidResource Include="Platforms\Android\Resources\mipmap-xxhdpi\appicon.png" />
+		<AndroidResource Include="Platforms\Android\Resources\mipmap-xxhdpi\appicon_round.png" />
+
+		<AndroidResource Include="Platforms\Android\Resources\mipmap-xxxhdpi\appicon.png" />
+		<AndroidResource Include="Platforms\Android\Resources\mipmap-xxxhdpi\appicon_round.png" />
 	</ItemGroup>
 
 </Project>

@@ -4,6 +4,10 @@ public class App : Application
 {
     public App()
     {
-        MainPage = new MainPage();
+        MainPage = new NavigationPage(new MainPage())
+        {
+            BarBackgroundColor = Colors.Black,
+            BarTextColor = Colors.White
+        };
     }
 }

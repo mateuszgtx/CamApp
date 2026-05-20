@@ -20,39 +20,42 @@ public class MainPage : ContentPage
     private readonly ActivityIndicator _spinner;
     private readonly Label _statusLabel;
 
+    private string _currentBaseUrl = "http://192.168.4.1:5000";
+
     public MainPage()
     {
         Title = "CamApp";
+        BackgroundColor = Colors.Black;
 
         _addressEntry = new Entry
         {
-            Placeholder = "Adres Raspberry Pi, np. http://192.168.4.1:5000",
-            Text = "http://192.168.4.1:5000",
+            Placeholder = "Adres Raspberry Pi",
+            Text = _currentBaseUrl,
             Keyboard = Keyboard.Url,
             FontSize = 13,
-            HorizontalOptions = LayoutOptions.FillAndExpand
+            HorizontalOptions = LayoutOptions.FillAndExpand,
+            TextColor = Colors.White,
+            PlaceholderColor = Color.FromArgb("#888888"),
+            BackgroundColor = Color.FromArgb("#101010")
         };
 
-        var findButton = new Button
-        {
-            Text = "Szukaj",
-            Padding = new Thickness(10, 6)
-        };
+        var findButton = MakeSmallButton("Szukaj");
         findButton.Clicked += OnFindClicked;
 
-        var openButton = new Button
-        {
-            Text = "Otwórz",
-            Padding = new Thickness(10, 6)
-        };
+        var openButton = MakeSmallButton("Otwórz");
         openButton.Clicked += OnOpenClicked;
+
+        var galleryButton = MakeSmallButton("Galeria");
+        galleryButton.Clicked += OnGalleryClicked;
 
         var topBar = new Grid
         {
             Padding = new Thickness(8, 6),
+            BackgroundColor = Colors.Black,
             ColumnDefinitions =
             {
                 new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = GridLength.Auto },
                 new ColumnDefinition { Width = GridLength.Auto }
             }
@@ -61,6 +64,7 @@ public class MainPage : ContentPage
         topBar.Add(_addressEntry, 0, 0);
         topBar.Add(findButton, 1, 0);
         topBar.Add(openButton, 2, 0);
+        topBar.Add(galleryButton, 3, 0);
 
         _cameraWebView = new WebView
         {
@@ -72,7 +76,8 @@ public class MainPage : ContentPage
         {
             IsRunning = false,
             WidthRequest = 48,
-            HeightRequest = 48
+            HeightRequest = 48,
+            Color = Colors.White
         };
 
         _statusLabel = new Label
@@ -127,6 +132,19 @@ public class MainPage : ContentPage
         Content = mainGrid;
     }
 
+    private static Button MakeSmallButton(string text) => new()
+    {
+        Text = text,
+        Padding = new Thickness(10, 6),
+        FontSize = 13,
+        BackgroundColor = Color.FromArgb("#181818"),
+        TextColor = Colors.White,
+        BorderColor = Color.FromArgb("#333333"),
+        BorderWidth = 1,
+        CornerRadius = 10,
+        Margin = new Thickness(3, 0)
+    };
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
@@ -149,6 +167,16 @@ public class MainPage : ContentPage
     private void OnOpenClicked(object? sender, EventArgs e)
     {
         OpenAddress(_addressEntry.Text);
+    }
+
+    private async void OnGalleryClicked(object? sender, EventArgs e)
+    {
+        var address = NormalizeBaseUrl(_addressEntry.Text);
+        if (string.IsNullOrWhiteSpace(address))
+            address = _currentBaseUrl;
+
+        _currentBaseUrl = address;
+        await Navigation.PushAsync(new GalleryPage(_currentBaseUrl));
     }
 
     private async Task FindAndOpenAsync()
@@ -196,8 +224,21 @@ public class MainPage : ContentPage
 
     private void OpenAddress(string? address)
     {
+        address = NormalizeBaseUrl(address);
         if (string.IsNullOrWhiteSpace(address))
             return;
+
+        _currentBaseUrl = address;
+        _addressEntry.Text = address;
+        _cameraWebView.Source = address;
+        _overlay.IsVisible = false;
+        _spinner.IsRunning = false;
+    }
+
+    private static string NormalizeBaseUrl(string? address)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+            return "";
 
         address = address.Trim().TrimEnd('/');
 
@@ -207,10 +248,7 @@ public class MainPage : ContentPage
             address = "http://" + address;
         }
 
-        _addressEntry.Text = address;
-        _cameraWebView.Source = address;
-        _overlay.IsVisible = false;
-        _spinner.IsRunning = false;
+        return address;
     }
 
     private async Task<string?> ScanCandidatesAsync(List<string> candidates, CancellationToken token)
