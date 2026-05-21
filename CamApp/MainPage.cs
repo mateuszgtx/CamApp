@@ -191,7 +191,7 @@ public class MainPage : ContentPage
 
         try
         {
-            foreach (var fast in new[] { "http://192.168.4.1:5000", "http://raspberrypi.local:5000" })
+            foreach (var fast in new[] { "http://10.42.0.1:5000", "http://192.168.4.1:5000", "http://raspberrypi.local:5000" })
             {
                 if (await IsPiCameraAsync(fast, token))
                 {
