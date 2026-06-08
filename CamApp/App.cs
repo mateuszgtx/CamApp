@@ -4,10 +4,8 @@ public class App : Application
 {
     public App()
     {
-        MainPage = new NavigationPage(new MainPage())
-        {
-            BarBackgroundColor = Colors.Black,
-            BarTextColor = Colors.White
-        };
+        // Bez NavigationPage/Shell, żeby Android nie tworzył dodatkowych fragmentów
+        // typu NavigationRootManager. To usuwa crash z jumpToStart.
+        MainPage = new MainPage();
     }
 }
