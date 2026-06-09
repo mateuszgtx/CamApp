@@ -426,16 +426,10 @@ public class MainPage : ContentPage
                 return;
             }
 
-            status.Text = "Wybierz zdjęcie albo film.";
+            status.Text = "";
 
-            foreach (var item in _galleryItems)
-            {
-                var title = item.IsVideo ? "🎬 " + item.Name : "📷 " + item.Name;
-                var button = MakeSmallButton(title + "  " + item.DisplaySize);
-                button.HorizontalOptions = LayoutOptions.Fill;
-                button.Clicked += async (_, _) => await OpenMediaItemAsync(item);
-                list.Children.Add(button);
-            }
+            var tilesGrid = BuildGalleryTilesGrid(_galleryItems);
+            list.Children.Add(tilesGrid);
         }
         catch (Exception ex)
         {
@@ -445,6 +439,119 @@ public class MainPage : ContentPage
         {
             spinner.IsRunning = false;
         }
+    }
+
+    private Grid BuildGalleryTilesGrid(IReadOnlyList<MediaItem> items)
+    {
+        var grid = new Grid
+        {
+            Padding = new Thickness(6),
+            RowSpacing = 12,
+            ColumnSpacing = 12,
+            ColumnDefinitions =
+            {
+                new ColumnDefinition { Width = GridLength.Star },
+                new ColumnDefinition { Width = GridLength.Star }
+            }
+        };
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            if (i % 2 == 0)
+                grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            var tile = MakeGalleryTile(items[i]);
+            grid.Add(tile, i % 2, i / 2);
+        }
+
+        return grid;
+    }
+
+    private Border MakeGalleryTile(MediaItem item)
+    {
+        var preview = new Grid
+        {
+            HeightRequest = 132,
+            BackgroundColor = Color.FromArgb("#111111")
+        };
+
+        if (item.IsImage)
+        {
+            preview.Children.Add(new Image
+            {
+                Source = ImageSource.FromUri(new Uri(item.FullUrl)),
+                Aspect = Aspect.AspectFill,
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Fill,
+                BackgroundColor = Colors.Black
+            });
+        }
+        else
+        {
+            preview.Children.Add(new Label
+            {
+                Text = "🎬",
+                FontSize = 42,
+                TextColor = Colors.White,
+                HorizontalTextAlignment = TextAlignment.Center,
+                VerticalTextAlignment = TextAlignment.Center
+            });
+        }
+
+        var typeBadge = new Label
+        {
+            Text = item.IsVideo ? "WIDEO" : "ZDJĘCIE",
+            FontSize = 10,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Colors.White,
+            BackgroundColor = Color.FromRgba(0, 0, 0, 0.62),
+            Padding = new Thickness(7, 3),
+            HorizontalOptions = LayoutOptions.Start,
+            VerticalOptions = LayoutOptions.Start,
+            Margin = new Thickness(8)
+        };
+        preview.Children.Add(typeBadge);
+
+        var name = new Label
+        {
+            Text = item.Name,
+            FontSize = 12,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Colors.White,
+            LineBreakMode = LineBreakMode.TailTruncation,
+            MaxLines = 1,
+            Margin = new Thickness(8, 8, 8, 0)
+        };
+
+        var size = new Label
+        {
+            Text = item.DisplaySize,
+            FontSize = 11,
+            TextColor = Color.FromArgb("#A8A8A8"),
+            LineBreakMode = LineBreakMode.TailTruncation,
+            Margin = new Thickness(8, 0, 8, 8)
+        };
+
+        var content = new VerticalStackLayout
+        {
+            Spacing = 2,
+            Children = { preview, name, size }
+        };
+
+        var tile = new Border
+        {
+            Stroke = Color.FromArgb("#2F2F2F"),
+            StrokeThickness = 1,
+            BackgroundColor = Color.FromArgb("#171717"),
+            StrokeShape = new RoundRectangle { CornerRadius = 18 },
+            Content = content
+        };
+
+        var tap = new TapGestureRecognizer();
+        tap.Tapped += async (_, _) => await OpenMediaItemAsync(item);
+        tile.GestureRecognizers.Add(tap);
+
+        return tile;
     }
 
     private async Task OpenMediaItemAsync(MediaItem item)
