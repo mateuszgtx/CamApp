@@ -1,4 +1,4 @@
-CEGŁA CamApp
+## CEGŁA
 
 `CamApp` is a .NET MAUI companion application for the CEGŁA / `pi-camera` Raspberry Pi camera project. It lets a phone or desktop client discover a camera device on the local network, connect to its web panel, browse the remote media gallery, open videos, download photos, and share photos from the device.
 
